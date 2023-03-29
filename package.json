@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "watch": "tailwindcss -i ./static/css/tailwind-input.css -o ./static/css/tailwind-output.css --watch"
+  },
   "devDependencies": {
     "flowbite": "^1.6.4",
     "tailwindcss": "^3.2.7"
