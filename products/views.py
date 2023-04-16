@@ -16,10 +16,11 @@ def product_list_view(request: HttpRequest) -> HttpResponse:
     return render(request, "products/list.html", {"products": products})
 
 
-def product_detail_view(request: HttpRequest, handle: str) -> HttpResponse:
+def product_manage_detail_view(request: HttpRequest, handle: str) -> HttpResponse:
     product = get_object_or_404(Product, handle=handle)
-    form = False
-    if product.user == request.user:
+    form = None
+    is_manager = product.user == request.user
+    if is_manager:
         form = ProductForm(instance=product)
         if request.method == "POST":
             form = ProductForm(request.POST, request.FILES, instance=product)
@@ -27,6 +28,15 @@ def product_detail_view(request: HttpRequest, handle: str) -> HttpResponse:
                 form.save()
 
     return render(request ,"products/detail.html", {"product": product, "form": form})
+
+
+def product_detail_view(request: HttpRequest, handle: str) -> HttpResponse:
+    product = get_object_or_404(Product.objects.prefetch_related("productattachment_set"), handle=handle)
+
+    is_owner = request.user.is_authenticated  # -> verify ownership
+
+    return render(request ,"products/detail.html", {"product": product, "is_owner": is_owner})
+
 
 @login_required
 def product_create_view(request: HttpRequest) -> HttpResponse:
