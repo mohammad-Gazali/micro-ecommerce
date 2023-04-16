@@ -1,7 +1,14 @@
 from django.db import models
 from django.conf.global_settings import AUTH_USER_MODEL
 from django.core.validators import MinValueValidator
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 
+
+
+
+PROTECTED_MEDIA_ROOT = settings.PROTECTED_MEDIA_ROOT
+protected_storage = FileSystemStorage(location=str(PROTECTED_MEDIA_ROOT))
 
 
 class Product(models.Model):
@@ -19,3 +26,15 @@ class Product(models.Model):
     @property
     def stripe_price(self) -> int:
         return int(self.price * 100)
+    
+
+def handle_product_attachment_upload(instance, filename: str):
+    return f"products/{instance.product.handle}/attachments/{filename}"
+
+class ProductAttachment(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    file = models.FileField(upload_to=handle_product_attachment_upload, storage=protected_storage)
+    is_free = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)

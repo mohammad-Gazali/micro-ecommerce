@@ -127,6 +127,10 @@ STATIC_ROOT = BASE_DIR / "local-cdn" / "static"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "local-cdn" / "media"
 
+# this root is surely a custom constant
+# here we don't add this media root to the accessiable media files to all users, so we won't add it in the urls.py in "core" folder
+PROTECTED_MEDIA_ROOT = BASE_DIR / "local-cdn" / "protected"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
