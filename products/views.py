@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest, HttpResponse, FileResponse, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
-from products.forms import ProductForm
+from products.forms import ProductForm, ProductAttachmentInlineFormSet
 from products.models import Product, ProductAttachment
 import mimetypes
 
@@ -17,17 +17,45 @@ def product_list_view(request: HttpRequest) -> HttpResponse:
 
 
 def product_manage_detail_view(request: HttpRequest, handle: str) -> HttpResponse:
-    product = get_object_or_404(Product, handle=handle)
-    form = None
+    product = get_object_or_404(Product.objects.prefetch_related("productattachment_set"), handle=handle)
+    product_attachments = product.productattachment_set.all()
     is_manager = product.user == request.user
-    if is_manager:
-        form = ProductForm(instance=product)
-        if request.method == "POST":
-            form = ProductForm(request.POST, request.FILES, instance=product)
-            if form.is_valid():
-                form.save()
 
-    return render(request ,"products/detail.html", {"product": product, "form": form})
+    if not is_manager:
+        return HttpResponseBadRequest()
+
+    form = ProductForm(request.POST or None, request.FILES or None, instance=product)
+    formset = ProductAttachmentInlineFormSet(request.POST or None, request.FILES or None, queryset=product_attachments)
+
+    print(request.FILES)
+
+    if form.is_valid() and formset.is_valid():
+
+        instance = form.save(commit=False)
+        instance.save()
+        
+        formset.save(commit=False)
+
+        for _form in formset:
+            is_delete = _form.cleaned_data.get("DELETE")
+
+            try:
+                attachment_obj = _form.save(commit=False)
+            except:
+                attachment_obj = None
+
+            if is_delete and attachment_obj.pk and attachment_obj is not None:
+                attachment_obj.delete()
+
+            elif attachment_obj is not None:
+                attachment_obj.product = instance
+                attachment_obj.save()
+
+            product_attachments = ProductAttachment.objects.filter(product=product)
+            formset = ProductAttachmentInlineFormSet(queryset=product_attachments)
+                
+    return render(request ,"products/manager.html", {"product": product, "form": form, "formset": formset})
+
 
 
 def product_detail_view(request: HttpRequest, handle: str) -> HttpResponse:

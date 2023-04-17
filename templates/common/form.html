@@ -14,12 +14,22 @@
 </ul>
 
 {% for field in form %}
+    
     <div class="mb-6">
-        {% if field.field.required %}
-            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"> {{ field.label }} * </label>
+        {% if field.widget_type == "checkbox" %}
+            <div class="flex items-center gap-2">
+                {{ field }}
+                <label for="{{ field.id_for_label }}" class="inline-block text-sm font-medium text-gray-900 dark:text-white cursor-pointer"> {{ field.label }} </label>
+            </div>
+        {% elif field.widget_type == "hidden" %}
+            {{ field }}
         {% else %}
-            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"> {{ field.label }} </label>
+            {% if field.field.required %}
+                <label for="{{ field.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"> {{ field.label }} * </label>
+            {% else %}
+                <label for="{{ field.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"> {{ field.label }} </label>
+            {% endif %}
+            {{ field }}
         {% endif %}
-        {{ field }}
     </div>
 {% endfor %}
