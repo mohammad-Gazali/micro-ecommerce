@@ -17,7 +17,7 @@ def product_list_view(request: HttpRequest) -> HttpResponse:
 
 
 def product_manage_detail_view(request: HttpRequest, handle: str) -> HttpResponse:
-    product = get_object_or_404(Product.objects.prefetch_related("productattachment_set"), handle=handle)
+    product = get_object_or_404(Product.objects.select_related("user").prefetch_related("productattachment_set"), handle=handle)
     product_attachments = product.productattachment_set.all()
     is_manager = product.user == request.user
 
