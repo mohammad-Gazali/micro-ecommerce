@@ -21,7 +21,9 @@ DEBUG = config("DEBUG", default=None) == "True"
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    config("SITE_URL", default=None)
+    config("SITE_URL", default=None),
+    config("ALLOWED_HOST", default=None),
+
 ]
 
 
