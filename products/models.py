@@ -1,9 +1,10 @@
 from django.db import models
 from django.conf.global_settings import AUTH_USER_MODEL
 from django.core.validators import MinValueValidator
-from django.conf import settings
-from django.core.files.storage import FileSystemStorage
+# from django.conf import settings
+# from django.core.files.storage import FileSystemStorage
 from core.env import config
+from core.storages.backends import ProtectedFileStorage
 import pathlib
 import stripe
 
@@ -12,8 +13,9 @@ import stripe
 STRIPE_PUBLIC_KEY = config("STRIPE_PUBLIC_KEY", default=None)
 STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY", default=None)
 
-PROTECTED_MEDIA_ROOT = settings.PROTECTED_MEDIA_ROOT
-protected_storage = FileSystemStorage(location=str(PROTECTED_MEDIA_ROOT))
+# PROTECTED_MEDIA_ROOT = settings.PROTECTED_MEDIA_ROOT
+protected_storage = ProtectedFileStorage()
+# protected_storage = FileSystemStorage(location=str(PROTECTED_MEDIA_ROOT))
 
 
 class Product(models.Model):

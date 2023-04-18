@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpRequest, HttpResponse, FileResponse, HttpResponseBadRequest
+from django.http import HttpRequest, HttpResponse, FileResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from products.forms import ProductForm, ProductAttachmentInlineFormSet
 from products.models import Product, ProductAttachment
-import mimetypes
+from core.storages.utils import generate_presigned_url
 
 
 
@@ -83,29 +83,19 @@ def product_create_view(request: HttpRequest) -> HttpResponse:
     return render(request, "products/create.html", {"form": form})
 
 
-def product_attachment_download_view(request: HttpRequest, pk: int) -> FileResponse:
+def product_attachment_download_view(request: HttpRequest, pk: int):
     attachment = get_object_or_404(ProductAttachment, pk=pk)
     
     can_download = attachment.is_free
 
     if request.user.is_authenticated:
-        can_download = True
+        can_download = request.user.purchase_set.filter(product=attachment.product, completed=True).exists()  # -> verify ownership
 
-    if not can_download:
+    if not can_download and not attachment.is_free:
         return HttpResponseBadRequest()
 
-    # this way will change we use object storage like S3
-    file = attachment.file.open(mode="rb")
+    file_name = attachment.file.name
 
-    filename = attachment.file.name
+    file_url = generate_presigned_url(file_name)
 
-    response = FileResponse(file)
-
-    content_type, encoding = mimetypes.guess_type(filename)
-
-    response["Content-Type"] = content_type or "application/octet-stream"
-
-    # here we force download after accessing this view
-    response["Content-Disposition"] = f"attachment;filename={filename}"
-
-    return response
+    return HttpResponseRedirect(file_url)
