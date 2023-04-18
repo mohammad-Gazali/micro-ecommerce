@@ -18,7 +18,7 @@
                         <p class="text-gray-500 dark:text-gray-400">Deliver great service experiences fast - without the complexity of traditional ITSM solutions.Accelerate critical development work, eliminate toil, and deploy changes with ease, with a complete audit trail for every change.</p>
                     </div>
 
-                    {% include "products/attachments-table.html" with attachments=product.productattachment_set.all is_owner=is_owner %}
+                    {% include "partials/products/attachments-table.html" with attachments=product.productattachment_set.all is_owner=is_owner %}
                 </div>
                 <div class="grid gap-4 min-w-[250px] flex-1">
                     <div>
@@ -44,11 +44,7 @@
                 </div>
             </div>
             {% if not is_owner %}
-                <a href="#" class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex justify-center items-center gap-1 w-full">
-                    Add To Cart <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
-                    </svg>  
-                </a>
+                {% include "partials/purchases/buy_btn_form.html" with product=product full=True %}
             {% endif %}
         </div>
         {% if form %}

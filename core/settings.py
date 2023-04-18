@@ -36,7 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # my apps
-    'products.apps.ProductsConfig'
+    'products.apps.ProductsConfig',
+    'purchases.apps.PurchasesConfig',
 ]
 
 MIDDLEWARE = [
@@ -73,16 +74,13 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASE_URL = config("DATABASE_URL", default=None)
-
-if DATABASE_URL is not None:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=DATABASE_URL,  # type: ignore
-            conn_max_age=600,
-            conn_health_checks=True
-        )
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "db.sqlite3",
     }
+}
+
 
 
 # Password validation

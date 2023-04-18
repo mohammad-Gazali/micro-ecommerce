@@ -27,8 +27,6 @@ def product_manage_detail_view(request: HttpRequest, handle: str) -> HttpRespons
     form = ProductForm(request.POST or None, request.FILES or None, instance=product)
     formset = ProductAttachmentInlineFormSet(request.POST or None, request.FILES or None, queryset=product_attachments)
 
-    print(request.FILES)
-
     if form.is_valid() and formset.is_valid():
 
         instance = form.save(commit=False)
@@ -59,9 +57,13 @@ def product_manage_detail_view(request: HttpRequest, handle: str) -> HttpRespons
 
 
 def product_detail_view(request: HttpRequest, handle: str) -> HttpResponse:
+    
     product = get_object_or_404(Product.objects.prefetch_related("productattachment_set"), handle=handle)
+    
+    is_owner = False
 
-    is_owner = request.user.is_authenticated  # -> verify ownership
+    if request.user.is_authenticated:
+        is_owner = request.user.purchase_set.filter(product=product, completed=True).exists()  # -> verify ownership
 
     return render(request ,"products/detail.html", {"product": product, "is_owner": is_owner})
 

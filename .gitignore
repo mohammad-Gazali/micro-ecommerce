@@ -263,5 +263,8 @@ dist
 .pnp.*
 
 
+# database
+db
+
 # for local cdn
 local-cdn
